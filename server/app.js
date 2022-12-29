@@ -5,6 +5,7 @@ const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controller/errorController')
 
 const app = express()
+
 app.use(morgan('common'))
 
 app.all('*', (req, res, next) => {
