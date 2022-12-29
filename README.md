@@ -8,16 +8,16 @@
 
 **可以通过以下步骤得到一个最简单的起始项目**
    +  切换到此仓库的`init`分支进行本地`clone`。得到基础项目
-   +  cd server -> npm run server 得到运行在http://127.0.0.1:3000的API服务端
-   +  cd client -> npm run client 得到运行在http://127.0.0.1:8080的客户端测试网页
+   +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
+   +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
    +  根据`原系列文章`[ts-axios](https://github.com/NLRX-WJC/ts-axios)以及此README `Debug` 记录进行对应代码书写。
-   +  打开浏览器，输入http://127.0.0.1:8080。 -> F12 切换到`Performance`查看效果。
+   +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12 切换到`Performance`查看效果。
 
 **也可通过以下步骤获得一个已实现便于调试的项目**
    +  切换到此仓库的`main`分支进行本地`clone`。得到基础项目
-   +  cd server -> npm run server 得到运行在http://127.0.0.1:3000的API服务端
-   +  cd client -> npm run client 得到运行在http://127.0.0.1:8080的客户端测试网页
-   +  打开浏览器，输入http://127.0.0.1:8080。 -> F12打开开发者工具切换到`Performance`查看效果。
+   +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
+   +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
+   +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12打开开发者工具切换到`Performance`查看效果。
    +  通过点击页面上对应按钮触发网络请求，再通过F12打开开发者工具切换到`Performance`查看效果。
 
 2. 原文章的实现大概为2020年，此仓库实现为2022~2023年。 `axios`, `TypeScript`已经迭代多个版本。
