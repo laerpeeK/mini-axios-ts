@@ -27,14 +27,7 @@ export function buildURL(url: string, params?: any): string {
   // 1) params为空，直接返回原始url
   if (!params) return url
 
-  // 2) 如果url有哈希标记，直接返回原始url # 之前的部分
-  if (url.includes('#')) {
-    const markIndex = url.indexOf('#')
-    url = url.slice(0, markIndex)
-    return url
-  }
-
-  // 3) 其他情况下，处理params，将其拼接到原始url上
+  // 2) 处理params，将其拼接到url上
   // 这里的做法是：将键值对放到统一数组parts里
   // parts: ['key1=value1', 'key2=value2', ...]
   const parts: string[] = []
@@ -62,6 +55,12 @@ export function buildURL(url: string, params?: any): string {
     })
   })
 
+  // 3) 如果url有哈希标记，直接返回原始url # 之前的部分
+  if (url.includes('#')) {
+    const markIndex = url.indexOf('#')
+    url = url.slice(0, markIndex)
+  }
+  
   let serializedParams = parts.join('&')
   if (serializedParams) {
     url += (url.includes('?') ? '&' : '?') + serializedParams

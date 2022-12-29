@@ -48,6 +48,7 @@
 ## Debug
 1. 处理get请求url参数: params[key]对应值为undefined时，不直接删除，而是保留key=''
 2. 处理get请求url参数: 测试用例中`url中已存在的参数`应该为`url已存在部分参数`
+3. 处理get请求url参数：hash情况下改为： 去除哈希标志#后的参数，并且拼接config.params参数
 3. 处理请求的header: 优化`helpers/headers.ts`中的`normalizeHeaderName`函数，已知默认传入headers为空对象
 4. `helpers/error.ts`中的`Object.setPrototypeOf(this, AxiosError.prototype)` 这只是一个巧妙的解决方式用来应对 Error 类的原型问题， 具体原因参照
    [为什么扩展内置函数（如 Error、Array 和 ）Map 不起作用？](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work)

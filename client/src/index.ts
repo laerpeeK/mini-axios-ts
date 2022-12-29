@@ -81,7 +81,8 @@ getElById('handleRequestURL').addEventListener('click', () => {
     method: 'get',
     url: '/api/handleRequestURL/get#hash?bar=baz',
     params: {
-      foo: 'bar',
+      hash: 'bar',
+      zk: 'baz'
     },
   })
 
