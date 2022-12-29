@@ -7,14 +7,14 @@
 1. 原文章项目的构建，使用方式比较复杂。此仓库采用轻量化Webpack配置，实现了一个极其简洁的项目构建，测试方案。
 
 **可以通过以下步骤得到一个最简单的起始项目**
-   +  切换到此仓库的`init`分支进行本地`clone`。得到基础项目
+   +  切换到此仓库的`init`分支进行本地`git clone --branch init 对应方式地址`  。得到基础项目
    +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
    +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
    +  根据`原系列文章`[ts-axios](https://github.com/NLRX-WJC/ts-axios)以及此README `Debug` 记录进行对应代码书写。
    +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12 切换到`Performance`查看效果。
 
 **也可通过以下步骤获得一个已实现便于调试的项目**
-   +  切换到此仓库的`main`分支进行本地`clone`。得到基础项目
+   +  切换到此仓库的`main`分支进行本地`git clone --branch main 对应方式地址`。得到基础项目
    +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
    +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
    +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12打开开发者工具切换到`Performance`查看效果。
@@ -48,7 +48,7 @@
 ## Debug
 1. 处理get请求url参数: params[key]对应值为undefined时，不直接删除，而是保留key=''
 2. 处理get请求url参数: 测试用例中`url中已存在的参数`应该为`url已存在部分参数`
-3. 处理get请求url参数：hash情况下改为： 去除哈希标志#后的参数，并且拼接config.params参数
+3. 处理get请求url参数：hash情况下改为：去除哈希标志#后的参数，并且拼接config.params参数
 3. 处理请求的header: 优化`helpers/headers.ts`中的`normalizeHeaderName`函数，已知默认传入headers为空对象
 4. `helpers/error.ts`中的`Object.setPrototypeOf(this, AxiosError.prototype)` 这只是一个巧妙的解决方式用来应对 Error 类的原型问题， 具体原因参照
    [为什么扩展内置函数（如 Error、Array 和 ）Map 不起作用？](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work)
