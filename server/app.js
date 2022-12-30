@@ -73,36 +73,68 @@ app.get('/api/handleError/timeout', (req, res) => {
 
 
 // 09
-app.get("/api/expandInterface/get", function(req, res) {
+app.get("/api/expandInterface/get", (req, res) => {
   res.json({
     msg: "hello world"
   });
 });
 
-app.options("/api/expandInterface/options", function(req, res) {
+app.options("/api/expandInterface/options", (req, res) => {
   res.end();
 });
 
-app.delete("/api/expandInterface/delete", function(req, res) {
+app.delete("/api/expandInterface/delete", (req, res) => {
   res.end();
 });
 
-app.head("/api/expandInterface/head", function(req, res) {
+app.head("/api/expandInterface/head", (req, res) => {
   res.end();
 });
 
-app.post("/api/expandInterface/post", function(req, res) {
+app.post("/api/expandInterface/post", (req, res) => {
   res.json(req.body);
 });
 
-app.put("/api/expandInterface/put", function(req, res) {
+app.put("/api/expandInterface/put", (req, res) => {
   res.json(req.body);
 });
 
-app.patch("/api/expandInterface/patch", function(req, res) {
+app.patch("/api/expandInterface/patch", (req, res) => {
   res.json(req.body);
 });
 
+
+// 10
+app.post('/api/addParameters', (req, res) => {
+  res.json(req.body)
+})
+
+app.get('/api/addParameters', (req, res) => {
+  res.json(req.query)
+})
+
+
+// 11
+app.get('/api/addGenericityToAxiosResponse', (req, res) => {
+  res.json({
+    msg: 'hello world',
+    data: {
+      name: 'NLRX',
+      age: 18
+    }
+  })
+})
+
+// 12
+app.get('/api/addInterceptors', (req, res) => {
+  res.json({
+    msg: 'hi interceptor',
+    data: {
+      name: 'NLRX',
+      age: 18
+    }
+  })
+})
 
 // no match address
 app.all('*', (req, res, next) => {

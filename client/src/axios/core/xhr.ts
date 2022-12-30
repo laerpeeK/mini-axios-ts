@@ -11,7 +11,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       responseType,
       timeout,
     } = config
-
+  
     const request = new XMLHttpRequest()
 
     request.open(method.toUpperCase(), url!, true)

@@ -82,7 +82,7 @@ getElById('handleRequestURL').addEventListener('click', () => {
     url: '/api/handleRequestURL/get#hash?bar=baz',
     params: {
       hash: 'bar',
-      zk: 'baz'
+      zk: 'baz',
     },
   })
 
@@ -335,5 +335,117 @@ getElById('expandInterface').addEventListener('click', () => {
     .patch('/api/expandInterface/patch', { msg: 'patch' })
     .then((res) => console.log(res))
     .catch((err) => console.log(err))
-  
+})
+
+// 10. 增加参数
+getElById('addParameters').addEventListener('click', () => {
+  // a) axios(config)
+  axios({
+    url: '/api/addParameters',
+    method: 'post',
+    data: {
+      msg: 'hi',
+    },
+  })
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err))
+
+  // b) axios(url, config)
+  axios('/api/addParameters', {
+    method: 'post',
+    data: {
+      msg: 'hello',
+    },
+  })
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err))
+
+  // c) axios(url)
+  axios('/api/addParameters?a=1&b=2')
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err))
+})
+
+// 11. 让响应数据支持泛型
+getElById('addGenericityToAxiosResponse').addEventListener(
+  'click',
+  async () => {
+    interface User {
+      name: string
+      age: number
+    }
+
+    interface ResponseData<T = any> {
+      data: T
+      msg: string
+    }
+
+    function getUser() {
+      return axios
+        .get<ResponseData<User>>('/api/addGenericityToAxiosResponse')
+        .then((res) => res.data.data)
+        .catch((err) => console.error(err))
+    }
+
+    // a)
+    const user = await getUser()
+    if (user) {
+      console.log(user.name, user.age)
+    }
+
+    // b)
+    axios<ResponseData<User>>('/api/addGenericityToAxiosResponse')
+      .then((res) => {
+        const { data: user, msg } = res.data
+        console.log(user.name, user.age)
+      })
+      .catch((err) => console.log(err))
+  }
+)
+
+// 12. 添加拦截器
+getElById('addInterceptors').addEventListener('click', () => {
+  // 添加对应拦截器
+  let requestInterceptor1 = axios.interceptors.request.use((config) => {
+    config.headers.test += 'requestInterceptors1---'
+    return config
+  })
+
+  axios.interceptors.request.use((config) => {
+    config.headers.test += 'requestInterceptors2---'
+    return config
+  })
+
+  axios.interceptors.request.use((config) => {
+    config.headers.test += 'requestInterceptors3---'
+    return config
+  })
+
+  axios.interceptors.response.use((response) => {
+    response.data.test += 'responseInterceptor1---'
+    return response
+  })
+
+  let responseInterceptor2 = axios.interceptors.response.use((response) => {
+    response.data.test += 'responseInterceptor2---'
+    return response
+  })
+
+  axios.interceptors.response.use((response) => {
+    response.data.test += 'responseInterceptor3---'
+    return response
+  })
+
+  // 删除对应拦截器
+  axios.interceptors.request.eject(requestInterceptor1)
+  axios.interceptors.response.eject(responseInterceptor2)
+
+  axios
+    .get('/api/addInterceptors', {
+      headers: {
+        test: 'NLRX',
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
 })

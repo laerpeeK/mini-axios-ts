@@ -37,9 +37,11 @@
 + 转换响应数据类型 
 + 异常处理 
 + 接口扩展，支持 axios.(`request`| `get` | `delete` | `head` | `options` | `put` | `patch` | `put`)以及`axios(config)` 
++ 允许axios(url, config?)以及axios(config)调用
++ 响应数据添加泛型约束
++ 支持请求和响应的拦截器
 
 **进行中**
-+ 支持请求和响应的拦截器
 + 支持请求数据和响应数据的转换
 + 支持请求的取消
 + JSON数据的自动转换
@@ -55,3 +57,11 @@
 5. 异常处理：增强版中`xhr.ts`应该引入工厂函数`createError`而非`AxiosError`, 否则不应该使用`createError()`而是在对应位置使用`new AxiosError`
 6. 接口扩展时，`helpers/data.ts`的`transformResponse`函数应该先判断是否存在data再进行类型判断, 因为响应可能为空, 此时
 如果JSON.parse()入参为空会报错
+7. 增加参数：`core/Axios.ts`的`request`方法第一个参数`url`的类型修改为`string | AxiosRequestConfig`
+8. 增加参数： 新增一个请求时不需要config参数的测试用例 `axios('/api/addParameters')` 以及`server/app.ts`增加 `app.get('/api/addParameters', (req, res) => {res.json(req.query)})`
+9. 让响应数据支持泛型: 修改了测试用例的写法， 在未启用拦截器解包之前，AxiosResponse.data 应该为返回数据整体即`{data: {name: 'NLRX', age: 18}, msg: 'hello world'}`需要二次解包res.data.data才是类型`User`
+10. 拦截器执行顺序：请求拦截器遵循栈的顺序`先入后出`，响应拦截器遵循队列的顺序`先入先出`
+11. 拦截器这章推荐按照我这边的代码结构进行书写，会比原文章清晰的多。
+12. Interceptor, InterceptorManager, ResolvedFn, RejectedFn, PromiseArr
+12. 拦截器类`interceptorManager`新增`stack`和`queue`方法，用于请求/响应拦截器的添加。原先是直接调用this.interceptors破坏了interceptors的private特性。
+
