@@ -8,14 +8,17 @@ import type {
 } from '../types'
 import dispatchRequest from './dispatchRequest'
 import IntercetorManager from './interceptorManager'
+import mergeConfig from './mergeConfig'
 
 export default class Axios {
+  private defaults: AxiosRequestConfig
   private interceptors: {
     request: InterceptorManager<AxiosRequestConfig>
     response: InterceptorManager<AxiosResponse>
   }
 
-  constructor() {
+  constructor(defaultConfig: AxiosRequestConfig) {
+    this.defaults = defaultConfig
     this.interceptors = {
       request: new IntercetorManager<AxiosRequestConfig>(),
       response: new IntercetorManager<AxiosResponse>(),
@@ -34,12 +37,14 @@ export default class Axios {
       config = url
     }
 
+    config = mergeConfig(this.defaults, config)
+
     let arr: PromiseArr<AxiosRequestConfig | AxiosResponse>[] = [
       // a) 前面应该按栈顺序添加请求拦截器
-      
+
       // b) 中间是真实请求
       {
-        resolved: dispatchRequest
+        resolved: dispatchRequest,
       },
 
       // c) 后面按队列顺序添加响应拦截器
@@ -51,7 +56,7 @@ export default class Axios {
 
     // 支持链式调用
     let promise = Promise.resolve(config)
-    while(arr.length) {
+    while (arr.length) {
       const { resolved, rejected } = arr.shift()!
       promise = promise.then(resolved, rejected)
     }

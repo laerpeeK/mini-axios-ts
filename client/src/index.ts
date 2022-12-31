@@ -411,17 +411,17 @@ getElById('addInterceptors').addEventListener('click', () => {
     return config
   })
 
-  axios.interceptors.request.use((config) => {
+  let requestInterceptor2 = axios.interceptors.request.use((config) => {
     config.headers.test += 'requestInterceptors2---'
     return config
   })
 
-  axios.interceptors.request.use((config) => {
+  let requestInterceptor3 = axios.interceptors.request.use((config) => {
     config.headers.test += 'requestInterceptors3---'
     return config
   })
 
-  axios.interceptors.response.use((response) => {
+  let responseInterceptor1 = axios.interceptors.response.use((response) => {
     response.data.test += 'responseInterceptor1---'
     return response
   })
@@ -431,7 +431,7 @@ getElById('addInterceptors').addEventListener('click', () => {
     return response
   })
 
-  axios.interceptors.response.use((response) => {
+  let responseInterceptor3 = axios.interceptors.response.use((response) => {
     response.data.test += 'responseInterceptor3---'
     return response
   })
@@ -446,6 +446,123 @@ getElById('addInterceptors').addEventListener('click', () => {
         test: 'NLRX',
       },
     })
+    .then((res) => {
+      console.log(res)
+      // 为了不影响其他接口的测试，此处删除对应的拦截器
+      axios.interceptors.request.eject(requestInterceptor2)
+      axios.interceptors.request.eject(requestInterceptor3)
+      axios.interceptors.response.eject(responseInterceptor1)
+      axios.interceptors.response.eject(responseInterceptor3)
+    })
+    .catch((err) => console.error(err))
+})
+
+// 13. 默认配置
+getElById('mergeConfig').addEventListener('click', () => {
+  axios({
+    url: '/api/mergeConfig',
+    method: 'post',
+    data: {
+      a: 1,
+    },
+    headers: {
+      test: '123',
+    },
+  })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 14. 请求和响应数据配置化
+getElById('transformData').addEventListener('click', () => {
+  // a) axios.post调用
+  axios
+    .post(
+      '/api/transformData',
+      {
+        a: 1,
+      },
+      {
+        transformRequest: [
+          function (data: any) {
+            data.a = data.a + 1
+            return data
+          },
+        ],
+        transformResponse: [
+          function (data: any) {
+            data.b = '对响应进行了转换'
+            return data
+          },
+        ],
+      }
+    )
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+
+  // b) axios()调用
+  axios({
+    url: '/api/transformData',
+    method: 'post',
+    data: {
+      a: 1,
+    },
+    transformRequest: [
+      function (data: any) {
+        data.a = data.a + 1
+        return data
+      },
+    ],
+    transformResponse: [
+      function (data: any) {
+        data.b = '对响应进行了转换'
+        return data
+      },
+    ],
+  })
+    .then((res) => {
+      console.log(res)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+})
+
+// 15. 增加axios.create接口
+getElById('expandCreateInterface').addEventListener('click', () => {
+  const axiosInstance1 = axios.create({
+    headers: {
+      NLRX: 'Hello NLRX',
+    },
+  })
+
+  axiosInstance1({
+    url: '/api/expandCreateInterface',
+    method: 'post',
+    data: {
+      a: 1,
+    },
+  })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  const axiosInstance2 = axios.create({
+    headers: {
+      test: '123',
+    },
+  })
+
+  axiosInstance2({
+    url: '/api/expandCreateInterface',
+    method: 'post',
+    data: {
+      a: 1,
+    },
+  })
     .then((res) => console.log(res))
     .catch((err) => console.error(err))
 })

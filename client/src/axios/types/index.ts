@@ -15,6 +15,14 @@ export interface AxiosRequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  transformRequest?: AxiosTransformer | AxiosTransformer[]
+  transformResponse?: AxiosTransformer | AxiosTransformer[]
+  [propName: string]: any
+}
+
+// 请求和响应转换函数接口定义
+export interface AxiosTransformer {
+  (data: any, headers?: any): any
 }
 
 // 响应数据接口定义
@@ -40,6 +48,7 @@ export interface AxiosError extends Error {
 
 // Axios类类型接口定义
 export interface Axios {
+  defaults: AxiosRequestConfig
   interceptors: {
     request: InterceptorManager<AxiosRequestConfig>,
     response: InterceptorManager<AxiosResponse>
@@ -54,12 +63,16 @@ export interface Axios {
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 }
 
-// axios类型接口定义
+// axios类型接口定义, 直接调用版本，无网络请求外的附加方法
 export interface AxiosInstance extends Axios {
   <T = any>(config: AxiosRequestConfig): AxiosPromise<T>
   <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 }
 
+// axios类型接口定义，支持更多方法 包括 axios.create / axios.all / axios.spread
+export interface AxiosStatic extends AxiosInstance {
+  create(config?: AxiosRequestConfig): AxiosInstance
+}
 
 // 单组拦截器类型接口定义
 export interface Interceptor<T = AxiosRequestConfig | AxiosResponse> {

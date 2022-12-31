@@ -136,6 +136,24 @@ app.get('/api/addInterceptors', (req, res) => {
   })
 })
 
+
+// 13
+app.post('/api/mergeConfig', (req, res) => {
+  res.json(req.body)
+})
+
+
+// 14
+app.post('/api/transformData', (req, res) => {
+  res.json(req.body)
+})
+
+
+// 15
+app.post('/api/expandCreateInterface', (req, res) => {
+  res.json(req.body)
+})
+
 // no match address
 app.all('*', (req, res, next) => {
   next(new AppError(`找不到路径：${req.originalUrl}`, 404))

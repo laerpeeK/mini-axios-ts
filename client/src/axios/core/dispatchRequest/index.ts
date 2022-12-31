@@ -2,11 +2,16 @@ import type { AxiosRequestConfig } from '../../types'
 import xhr from '../xhr'
 import { buildURL } from '../../helpers/url'
 import { transformRequest, transformResponse } from '../../helpers/data'
-import { processHeaders } from '../../helpers/headers'
+import { processHeaders, flattenHeaders } from '../../helpers/headers'
+import { transform } from '../transform'
 function processConfig(config: AxiosRequestConfig): void {
   config.url = transformUrl(config)
-  config.headers = transformHeaders(config)
-  config.data = transformRequestData(config)
+  // 以下两个函数已经放置到transformRequest进行执行
+  // config.headers = transformHeaders(config)
+  // config.data = transformRequestData(config)
+  
+  config.data = transform(config.data, config.headers, config.transformRequest)
+  config.headers = flattenHeaders(config.headers, config.method)
 }
 
 function transformUrl(config: AxiosRequestConfig): string {
@@ -27,7 +32,10 @@ function transformHeaders(config: AxiosRequestConfig): any {
 function dispatchRequest(config: AxiosRequestConfig) {
   processConfig(config)
   return xhr(config).then((res) => {
-    res.data = transformResponse(res.data)
+    // 以下函数已放置到res.config.transformResponse进行执行
+    // res.data = transformResponse(res.data)
+
+    res.data = transform(res.data, res.headers, res.config.transformResponse)
     return res
   })
 }

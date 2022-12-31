@@ -19,6 +19,8 @@ export function isDate(val: any): val is Date {
 export function isObject(val: any): val is Object {
   return toStringFn.call(val) === '[object Object]'
 }
+
+
 /**
  * 完成接口挂载的工具函数
  * @param to 
@@ -30,4 +32,30 @@ export function extend<T, U>(to: T, from: U): T & U {
     (to as T & U)[key] = from[key] as any
   }
   return to as T & U
+}
+
+/**
+ * 深度合并多个对象对应属性的函数 
+ * @param objs 
+ * @returns 
+ */
+export function deepMerge(...objs: any[]): any {
+  const result = Object.create(null)
+  for (let i = 0; i < objs.length; i++) {
+    const obj = objs[i]
+    for (let key in obj) {
+      assignValue(obj[key], key)
+    }
+  }
+
+  function assignValue(val: any, key: string) {
+    if (isObject(result[key]) && isObject(val)) {
+      result[key] = deepMerge(result[key], val)
+    } else if (isObject(val)) {
+      result[key] = deepMerge({}, val)
+    } else {
+      result[key] = val
+    }
+  }
+  return result
 }
