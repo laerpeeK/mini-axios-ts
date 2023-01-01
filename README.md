@@ -1,7 +1,7 @@
 # mini-axios-ts
 ## Before reading
-**该仓库完整实现部分已添加到`Features`, 更多功能正在以更好的方式进行补充中~**
-此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章复现，且再进一步优化而来的。
+
+**此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章的复现以及进一步优化。最大的特点是用更详细以及更容易理解的方式去实现部分功能模块包括`interceptor`|`tranformRequest`|`tranformResponse`|`CancelToken`等**
 
 **目录：**
 
@@ -55,6 +55,8 @@
 + 支持请求数据和响应数据的转换
 + 支持axios.create方法
 + 支持请求的主动取消
++ 支持通过axios.isCancel(reason)判断报错是否是主动取消网络请求
++ 支持相同CancelToken实例的取消完成后的`防抖`操作
 
 **进行中**
 + JSON数据的自动转换
