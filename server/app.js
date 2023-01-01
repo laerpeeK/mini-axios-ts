@@ -154,6 +154,16 @@ app.post('/api/expandCreateInterface', (req, res) => {
   res.json(req.body)
 })
 
+
+// 16
+app.get('/api/cancel', (req, res) => {
+  setTimeout(() => {
+    res.json({
+      msg: 'Hello World'
+    })
+  }, 3000)
+})
+
 // no match address
 app.all('*', (req, res, next) => {
   next(new AppError(`找不到路径：${req.originalUrl}`, 404))

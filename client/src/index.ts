@@ -1,5 +1,5 @@
 import axios from './axios'
-
+import type { Canceler } from './axios/types'
 function getElById(id: string): HTMLElement {
   return document.getElementById(id)!
 }
@@ -565,4 +565,93 @@ getElById('expandCreateInterface').addEventListener('click', () => {
   })
     .then((res) => console.log(res))
     .catch((err) => console.error(err))
+})
+
+// 16. 通过方式二主动取消网络请求
+getElById('cancelBySecondMethod').addEventListener('click', () => {
+  const CancelToken = axios.CancelToken
+  let cancelbySecondMethod: Canceler
+  axios
+    .get('/api/cancel', {
+      cancelToken: new CancelToken((c) => {
+        cancelbySecondMethod = c
+      }),
+    })
+    .then((res) => console.log(res))
+    .catch((err) => {
+      console.error(err)
+    })
+  // 此时直接调用会报错
+  // cancelbySecondMethod('用户通过方式二主动取消网络请求')
+  setTimeout(() => {
+    cancelbySecondMethod('用户通过方式二主动取消网络请求')
+  }, 1000)
+})
+
+// 17. 通过方式一主动取消网络请求
+getElById('cancelByFirstMethod').addEventListener('click', () => {
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
+  axios
+    .get('/api/cancel', {
+      cancelToken: source.token,
+    })
+    .then((res) => console.log(res))
+    .catch((err) => {
+      console.error(err)
+    })
+
+  setTimeout(() => {
+    source.cancel('用户通过方式一主动取消网络请求')
+  }, 1000)
+})
+
+// 18. 添加axios.isCancel方法
+getElById('isCancel').addEventListener('click', () => {
+  let source = axios.CancelToken.source()
+  axios
+    .get('/api/cancel', {
+      cancelToken: source.token,
+    })
+    .then(
+      (res) => console.log(res),
+      (err) => {
+        if (axios.isCancel(err)) {
+          console.error(`请求取消原因：${err.message}`)
+        }
+      }
+    )
+
+  source.cancel('测试axios.isCancel方法是否有效')
+})
+
+// 19.多个受相同条件影响的请求取消
+getElById('cancelQueue').addEventListener('click', () => {
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
+  axios
+    .get('/api/cancel', {
+      cancelToken: source.token,
+    })
+    .catch((err) => {
+      if (axios.isCancel(err)) {
+        console.error(`Cancel Reason: `, err.message)
+      }
+    })
+
+  setTimeout(() => {
+    source.cancel('主动取消网络请求')
+  }, 1000)
+
+  setTimeout(() => {
+    axios
+      .get('/api/cancel', {
+        cancelToken: source.token,
+      })
+      .catch((err) => {
+        if (axios.isCancel(err)) {
+          console.error(`Cancel Reason: `, err.message)
+        }
+      })
+  }, 1500)
 })

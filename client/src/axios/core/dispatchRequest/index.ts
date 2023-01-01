@@ -29,7 +29,14 @@ function transformHeaders(config: AxiosRequestConfig): any {
   return processHeaders(headers, data)
 }
 
+function throwIfCancellationRequested(config: AxiosRequestConfig) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested()
+  }
+}
+
 function dispatchRequest(config: AxiosRequestConfig) {
+  throwIfCancellationRequested(config)
   processConfig(config)
   return xhr(config).then((res) => {
     // 以下函数已放置到res.config.transformResponse进行执行

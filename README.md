@@ -9,7 +9,7 @@
       +  切换到此仓库的`init`分支进行本地`git clone --branch init 对应方式地址`  。得到基础项目
       +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
       +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
-      +  根据`原系列文章`[ts-axios](https://github.com/NLRX-WJC/ts-axios)以及此README `Debug` 记录进行对应代码书写。
+      +  根据`原系列文章`[ts-axios](https://github.com/NLRX-WJC/ts-axios)以及此仓库[mini-axios-ts#Debug](https://github.com/laerpeeK/mini-axios-ts#debug)记录进行对应代码书写。
       +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12 切换到`Performance`查看效果。
    
    
@@ -47,9 +47,9 @@
 + axios自身的默认配置包括`timeout`, `headers`, `transformRequest`, `transformResponse`
 + 支持请求数据和响应数据的转换
 + 支持axios.create方法
++ 支持请求的主动取消
 
 **进行中**
-+ 支持请求的取消
 + JSON数据的自动转换
 + 客户端防止XSRF
 
@@ -74,10 +74,136 @@
     + `ResolvedFn` ：成功拦截器，包括入参为`AxiosRequestConfig`以及`AxiosResponse`这两种
     + `RejectedFn`: 失败拦截器，就是一个常规的错误函数 (err: any): any
     + `PromiseArr`: 请求时链式调用数组，包括了拦截器`{ResolvedFn, RejectedFn}`与常规请求`{dispatchRequest}`
-
 14. 拦截器类`interceptorManager`新增`stack`和`queue`方法，用于请求/响应拦截器的添加。原先是直接调用`this.interceptors.request.interceptors`以及`this.interceptors.response.interceptors`破坏了`interceptorManager`类的`private`特性。
 15. axios默认配置：`defaults.ts`中`methodsNoData`修改为`requestWithoutDataMethods`，`methodsWithData`修改为`requestWithDataMethods`
 15. axios默认配置：`core/mergeConfig.ts`中`defaultToUserConfig`修改为`routineProperties`;`valueFromUserConfig`修改为`valueFromUserProperties`
 16. axios默认配置：`core/mergeConfig.ts`中`mergeConfig`函数对深度合并的判断条件进行了相关注释。
 17. axios默认配置：`helpers.ts`中`flattenHeaders`函数入参method改为可选，因为支持`axios(url)`的默认`GET`调用。
-18. 请求和响应数据配置化：优化了`ransformRequest`以及`transformResponse`在默认配置和用户配置的合并，在实际测试调用时不需要采用[userTransformRequst, ...axios.defaults.transformRequest]这种重复引入的方式，会自行合并。具体查看`core/mergeConfig.ts`的代码
+18. 请求和响应数据配置化：优化了`ransformRequest`以及`transformResponse`在默认配置和用户配置的合并，在实际测试调用时不需要采用[userTransformRequst, ...axios.defaults.transformRequest]这种重复引入的方式，会自行合并。具体查看`core/mergeConfig.ts`的代码实现
+19. axios.CancelToken原理解析，具体查看[mini-axios-ts#CancelToken](https://github.com/laerpeeK/mini-axios-ts#canceltoken)
+20. `CancelToken.ts`的`resolePromise`接口进行了简化，`type/index.ts`的`Canceler`同样进行了简化，调用`cancel(message)`取消网络请求时一定要传入对应的message
+21. 封装`CancelToken.source`的好处在于实际调用该方法时，就已经返回了对应的`token`以及`cancel`。可以在`axios.get`之余方法调用后直接调用`cancel(message)`。 否则在`ts编译检测阶段`，如果在config.cancelToken再去new CancelToken传入一个executor去给cancel赋值，会出现`在给cancel赋值前使用了cancel`的报错，这种时候需要异步执行cancel。详见测试用例`16：通过方式二主动取消网络请求`
+
+## CancelToken
+
+1. CancelToken这个类初始化的时候需要传递一个方法executor，并且它的内部新建了一个promise，最关键的是，**它把promise的resolve方法的执行放在了executor方法入参`c`里面**(重复理解这句话，对理解CancelToken设定非常重要)
+
+```javascript
+// CancelToken类的实现
+// （如果理解这个，就不需要再看下面其他2，3， 4， ......）
+class CancelToken {
+	constructor(executor){
+        let resolveHandle
+        this.promise = new Promise(resolve => {
+            resolveHandle = resolve
+        })
+        executor(function (message) {
+            if (this.reason) {
+                return
+            }
+            this.reason = message
+            resolveHandle(this.reason)
+        })
+    }
+    
+    static source() {
+    let cancel
+    let token = new CancelToken((c) => {
+        cancel = c
+    })
+    return {
+        cancel,
+        token
+    	}
+	}
+}
+
+// 调用
+const cancelProof = CancelToken.source()
+cancelProof.cancel('this is cancel Message')
+cancelProof.token.promise.then(res => {
+    console.log(res) // this.is cancel Message
+})
+```
+
+2.  
+   + axios.CancelToken是一个类
+   + axiosCancelToken.source()是静态方法，调用的是CancelToken类的静态source方法
+   + axiosCancelToken.source()会返回`token`以及`cancel`
+   + `token`是新创建的CancelToken实例， `cancel`是`token`即`CancelToken`实例构建时，对应的用于触发Promise`resolve`控制权的`resolveHandle`。
+   + 因此，一旦调用了`cancel`方法，即将`token`（也就是新创建的CancelToken实例）构建的promise设为`resolved`, 从而可以在这个promise的`then`方法里**触发实际的网络请求取消。** （伪代码：promise.then(res => {xml.abort(), reject(res)})）
+3. 综上所述，因此在axios()调用，传入的config需要传入`token`（即创建的CancelToken实例）, 此外，在需要主动取消时需要调用`cancel`方法（即将创建的CancelToken实例里的promise设为resolved，从而触发对应的then方法，取消网络请求。）
+
+4. 因为每个axios()调用如果都要携带主动取消功能，就需要对应的`token`以及`cancel`。两者的关系绑定通过`CancelToken`的静态方法`source`调用返回值实现。于是就能看到以下调用。
+
+```javascript
+const cancelProof1 = axios.CancelToken.source()
+const cancelProof2 = axios.CancelToken.source()
+
+
+axios.get(url, {
+    cancelToken: cancelProof1.token
+})
+
+axios.post(url, data {
+	cancelToken: cancelProof2.token           
+})
+
+cancelProof1.cancel('取消第一个请求')
+cancelProof2.cancel('取消第二个请求')
+```
+
+ 5. 此除之所以要在axios()调用时，传入config.cancelToken为对应的`token`是因为要通过promise.then触发网络请求取消，因此通过获取当前axios.get, axios.post调用时传入的config.CancelToken, 从而获取到对应的promise.then。 
+
+ 6. new CancelToken传入的`executor`是为了获取到可在外部调用的`cancel`方法，CancelToken.constructor内部`executor(fn)`执行时这里的`fn`为实际的promise.resolve方法。当你调用`cancel(message)`时，即调用`fn(message)`。所以在具体的CancelToken.source源码为：
+
+    ```javascript
+    CancelToken.source = function source() {
+    	var cancel
+    	var token = new CancelToken(function executor(c) => {
+    		cancel = c
+    	})
+    	return {
+    		cancel,
+    		token
+    	}
+    }
+    
+    ```
+
+ 7. 而CancelToken类的实现如下：
+
+    ```javascript
+    class CancelToken {
+    	constructor(executor) {
+    		let resolveHandle
+    		this.promise = new Promise(resolve => {
+    			resolveHandle = resolve
+    		})
+    		executor((message) => {
+    			if (this.reason) {
+    				return
+    			}
+    			this.reason = message
+    			resolveHandle(message)
+    		})
+    	}
+    }
+    ```
+
+ 8. 从而在外部调用`cancel('message')`触发以下入参函数
+
+    ```javascript
+    cancel函数 等价于 c  等价于executor的入参函数：(message) => {
+    	if(this.reason) {
+    		return
+    	}
+    	this.reason = message
+    	resolveHandle(message)
+    }
+    ```
+
+    
+
+
+

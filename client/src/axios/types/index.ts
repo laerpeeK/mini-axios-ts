@@ -17,6 +17,7 @@ export interface AxiosRequestConfig {
   timeout?: number
   transformRequest?: AxiosTransformer | AxiosTransformer[]
   transformResponse?: AxiosTransformer | AxiosTransformer[]
+  cancelToken?: CancelToken
   [propName: string]: any
 }
 
@@ -72,6 +73,9 @@ export interface AxiosInstance extends Axios {
 // axios类型接口定义，支持更多方法 包括 axios.create / axios.all / axios.spread
 export interface AxiosStatic extends AxiosInstance {
   create(config?: AxiosRequestConfig): AxiosInstance
+  CancelToken: CancelTokenStatic
+  Cancel: CancelStatic
+  isCancel: (val: any) => boolean
 }
 
 // 单组拦截器类型接口定义
@@ -102,4 +106,43 @@ export interface RejectedFn {
 export interface PromiseArr<T> {
   resolved: ResolvedFn<T> | ((config: AxiosRequestConfig) => AxiosPromise)
   rejected?: RejectedFn
+}
+
+// CancelToken类接口定义
+export interface CancelToken {
+  promise: Promise<Cancel>
+  reason?: Cancel
+  throwIfRequested(): void
+}
+
+// new Cancel(executor)时， executor接口定义 
+export interface CancelExecutor {
+  (cancel: Canceler): void
+}
+
+// Canceler其实就是对应的 c 函数
+export interface Canceler {
+  (message: string): void
+}
+
+// axios.CancelToken接口定义
+export interface CancelTokenStatic {
+  new (executor: CancelExecutor): CancelToken
+  source(): CancelTokenSource
+}
+
+// CancelToken.source接口定义
+export interface CancelTokenSource {
+  token: CancelToken
+  cancel: Canceler
+}
+
+// Cancel： 取消原因类实例接口定义
+export interface Cancel {
+  message: string
+}
+
+// CancelStatic: 取消原因类接口定义
+export interface CancelStatic {
+  new (message: string): Cancel
 }
