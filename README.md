@@ -3,6 +3,13 @@
 **该仓库完整实现部分已添加到`Features`, 更多功能正在以更好的方式进行补充中~**
 此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章复现，且再进一步优化而来的。
 
+**目录：**
+
+1. [优化说明](https://github.com/laerpeeK/mini-axios-ts#optimization)
+2. [实现功能列表](https://github.com/laerpeeK/mini-axios-ts#features)
+3. [具体优化项以及调试说明](https://github.com/laerpeeK/mini-axios-ts#debug)
+4. [CancelToken原理解析](https://github.com/laerpeeK/mini-axios-ts#CancelToken)
+
 ## Optimization
 1. 原文章项目的构建，使用方式比较复杂。此仓库采用轻量化Webpack配置，实现了一个极其简洁的项目构建，测试方案。
    **可以通过以下步骤得到一个最简单的起始项目**
@@ -27,7 +34,7 @@
 2. 原文章的实现大概为2020年，此仓库实现为2022~2023年。 `axios`, `TypeScript`已经迭代多个版本。
 此仓库同步TypeScript@4, axios@1进行实现。在已废弃功能以及新特性上进行了对应Debug补充。
 
-3. `client`端对各个功能进行了更详细的注释, 部分不易理解的代码逻辑进行了优化。方便源码的阅读。
+3. `client`端优化详见[mini-axios-ts#Debug](https://github.com/laerpeeK/mini-axios-ts#debug)。
 4. `server`端完善了请求错误处理机制以及跨域处理方式。
 
 ## Features
