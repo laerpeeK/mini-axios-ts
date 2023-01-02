@@ -57,9 +57,10 @@
 + 支持请求的主动取消
 + 支持通过axios.isCancel(reason)判断报错是否是主动取消网络请求
 + 支持相同CancelToken实例的取消完成后的`防抖`操作
++ 客户端支持通过配置`withCredentials`实现跨域请求携带cookie
++ 客户端防止XSRF
 + 支持上传下载进度监控
 + 支持上传下载功能
-+ 客户端防止XSRF
 
 **进行中**
 + JSON数据的自动转换
