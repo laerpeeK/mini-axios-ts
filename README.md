@@ -59,10 +59,10 @@
 + 支持相同CancelToken实例的取消完成后的`防抖`操作
 + 支持上传下载进度监控
 + 支持上传下载功能
++ 客户端防止XSRF
 
 **进行中**
 + JSON数据的自动转换
-+ 客户端防止XSRF
 
 ## Debug
 1. 处理get请求url参数: params[key]对应值为undefined时，不直接删除，而是保留key=''
