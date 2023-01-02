@@ -41,7 +41,6 @@ function dispatchRequest(config: AxiosRequestConfig) {
   return xhr(config).then((res) => {
     // 以下函数已放置到res.config.transformResponse进行执行
     // res.data = transformResponse(res.data)
-
     res.data = transform(res.data, res.headers, res.config.transformResponse)
     return res
   })

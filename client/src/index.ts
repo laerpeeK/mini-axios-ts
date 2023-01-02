@@ -625,7 +625,7 @@ getElById('isCancel').addEventListener('click', () => {
   source.cancel('测试axios.isCancel方法是否有效')
 })
 
-// 19.多个受相同条件影响的请求取消
+// 19. 多个受相同条件影响的请求取消
 getElById('cancelQueue').addEventListener('click', () => {
   const CancelToken = axios.CancelToken
   const source = CancelToken.source()
@@ -654,4 +654,76 @@ getElById('cancelQueue').addEventListener('click', () => {
         }
       })
   }, 1500)
+})
+
+// 20. 添加WithCredentials属性
+getElById('addWithCreadentials').addEventListener('click', () => {
+  // a) 未配置new XMLHttpRequest().withCredentials
+  axios
+    .post('http://127.0.0.1:3000/api/addWithCredentials', {})
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // b) 配置new XMLHttpRequest().withCredentials = true, 允许跨域请求携带cookies
+  axios
+    .post(
+      'http://127.0.0.1:3000/api/addWithCredentials',
+      {},
+      {
+        withCredentials: true,
+      }
+    )
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 21. 防止XSRF攻击
+getElById('defendXSRF').addEventListener('click', () => {
+  axios
+    .get('http://127.0.0.1:3000/api/defendXSRF', {
+      xsrfCookieName: 'XSRF-NLRX',
+      xsrfHeaderName: 'X-XSRF-NLRX',
+      withCredentials: true,
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 22. 上传下载
+const downloadInstance = axios.create({
+  onDownloadProgress: (e) => {
+    const load = e.loaded
+    const total = e.total
+    const progress = (load / total) * 100
+    console.log('当前下载进度：', progress)
+  },
+  responseType: 'blob',
+})
+getElById('download').addEventListener('click', () => {
+  downloadInstance
+    .get('http://127.0.0.1:3000/api/downloadFile')
+    .catch((err) => console.error(err))
+})
+
+const uploadInstance = axios.create({
+  onUploadProgress: (e) => {
+    const load = e.loaded
+    const total = e.total
+    const progress = (load / total) * 100
+    console.log('当前上传进度：', progress)
+  },
+})
+
+getElById('upload').addEventListener('click', () => {
+  const data = new FormData()
+  const file = getElById('file') as HTMLInputElement
+  if (file.files && file.files.length) {
+    data.append('file', file.files[0])
+    uploadInstance
+      .post('/api/uploadFile', data)
+      .then((res) => console.log(res))
+      .catch((err) => console.error(err))
+  } else {
+    window.alert('请先点击"选择文件"选择您想上传的本地文件')
+  }
 })

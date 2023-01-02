@@ -10,6 +10,12 @@
       display: block;
       margin: 10px;
     }
+
+    #upload-form {
+      border: 1px solid rgba(0,0,0, 0.5);
+      padding: 10px;
+      width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -32,5 +38,12 @@
   <button id="cancelByFirstMethod">17.通过方式一主动取消网络请求</button>
   <button id="isCancel">18.添加axios.isCancel接口</button>
   <button id="cancelQueue">19.多个受相同条件影响的请求取消</button>
+  <button id="addWithCreadentials">20.添加WithCredentials属性</button>
+  <button id="defendXSRF">21.防止XSRF攻击</button>
+  <button id="download">22.helloworld 文件下载</button>
+  <form role="form" onsubmit="return false;" id="upload-form">
+    <input id="file" type="file" />
+    <button id="upload" type="button">23.文件上传</button>
+  </form>
 </body>
 </html>

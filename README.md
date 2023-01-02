@@ -1,7 +1,7 @@
 # mini-axios-ts
 ## Before reading
 
-**此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章的复现以及进一步优化。最大的特点是用更详细以及更容易理解的方式去实现部分功能模块包括`interceptor`|`tranformRequest`|`tranformResponse`|`CancelToken`等**
+**此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章的复现以及进一步优化。最大的特点是用更详细以及更容易理解的方式去实现部分功能模块包括`interceptor`|`tranformRequest`|`tranformResponse`|`CancelToken`等，以及新功能`支持文件的上传与下载`等**
 
 **目录：**
 
@@ -57,6 +57,8 @@
 + 支持请求的主动取消
 + 支持通过axios.isCancel(reason)判断报错是否是主动取消网络请求
 + 支持相同CancelToken实例的取消完成后的`防抖`操作
++ 支持上传下载进度监控
++ 支持上传下载功能
 
 **进行中**
 + JSON数据的自动转换
@@ -92,6 +94,11 @@
 19. axios.CancelToken原理解析，具体查看[mini-axios-ts#CancelToken](https://github.com/laerpeeK/mini-axios-ts#canceltoken)
 20. `CancelToken.ts`的`resolePromise`接口进行了简化，`type/index.ts`的`Canceler`同样进行了简化，调用`cancel(message)`取消网络请求时一定要传入对应的message
 21. 封装`CancelToken.source`的好处在于实际调用该方法时，就已经返回了对应的`token`以及`cancel`。可以在`axios.get`之余方法调用后直接调用`cancel(message)`。 否则在`ts编译检测阶段`，如果在config.cancelToken再去new CancelToken传入一个executor去给cancel赋值，会出现`在给cancel赋值前使用了cancel`的报错，这种时候需要异步执行cancel。详见测试用例`16：通过方式二主动取消网络请求`
+22. 防止XSRF攻击：优化了`helpers/isURLSameOrigin.ts`, 采用更严谨的方式来处理`protocol`, `host`, `port`
+23. 防止XSRF攻击：优化了server端`app.js`的`cors`, `app.options`的处理方式。
+24. 文件上传下载进度监控：添加了实际上传下载功能的实现，具体查看对应代码
+25. 文件下载功能实现：查看`client/axios/helpers/data.ts/transformResponse`函数实现以及对应的测试用例，`server/app.js`对应的`22`接口
+26. 文件上传功能实现：通过`multer`实现
 
 ## CancelToken
 
