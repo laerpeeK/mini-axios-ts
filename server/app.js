@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const express = require('express')
 const morgan = require('morgan')
 const atob = require('atob')
@@ -17,6 +18,13 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+
+// 预处理
+try {
+  fs.readdirSync(path.resolve(process.cwd(), 'public/upload'))
+} catch (e) {
+  fs.mkdirSync(path.resolve(process.cwd(), 'public/upload'))
+}
 
 // 01
 app.get('/api/base/get', (req, res) => {
@@ -205,7 +213,7 @@ app.get('/api/addParamsSerializer', (req, res) => {
 // 27
 app.get('/api/baseURL', (req, res) => {
   res.json({
-    status: 'success'
+    status: 'success',
   })
 })
 
@@ -213,7 +221,7 @@ app.get('/api/baseURL', (req, res) => {
 app.get('/api/allAndSpreadA', (req, res) => {
   res.json({
     status: 'success',
-    data: 'allAndSpreadA'
+    data: 'allAndSpreadA',
   })
 })
 
@@ -221,7 +229,7 @@ app.get('/api/allAndSpreadB', (req, res) => {
   res.json({
     status: 'success',
     data: 'allAndSpreadB',
-    message: 'special message'
+    message: 'special message',
   })
 })
 

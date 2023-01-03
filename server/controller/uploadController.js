@@ -1,15 +1,8 @@
 // 文件上传功能处理函数
-const fs = require('fs')
 const multer = require('multer')
 const path = require('path')
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // 这里有优化空间，就是注释掉，自己创建一个upload目录
-    try {
-      fs.readdirSync(path.resolve(process.cwd(), 'public/upload'))
-    } catch (e) {
-      fs.mkdirSync(path.resolve(process.cwd(), 'public/upload'))
-    }
     cb(null, path.resolve(process.cwd(), './public/upload'))
   },
   filename: (req, file, cb) => {
