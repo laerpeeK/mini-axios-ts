@@ -1,12 +1,14 @@
 const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
+const atob = require('atob')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controller/errorController')
 const corsHandler = require('./controller/corsController')
 const uploadHandler = require('./controller/uploadController')
+const authHandler = require('./controller/authController')
 const app = express()
 
 // 中间件
@@ -177,12 +179,49 @@ app.get('/api/defendXSRF', (req, res) => {
 
 // 22
 app.get('/api/downloadFile', (req, res) => {
-  res.download(path.resolve(__dirname, './public/download/helloworld.txt'))
+  res.download(path.resolve(__dirname, './public/download/helloworld.jpg'))
 })
 
+// 23
 app.post('/api/uploadFile', uploadHandler.single('file'), (req, res) => {
   res.json({
+    status: 'success',
+  })
+})
+
+// 24
+app.get('/api/HTTPAuthorization', authHandler)
+
+// 25
+app.get('/api/checkStatus', (req, res) => {
+  res.status(304).end()
+})
+
+// 26
+app.get('/api/addParamsSerializer', (req, res) => {
+  res.json(req.query)
+})
+
+// 27
+app.get('/api/baseURL', (req, res) => {
+  res.json({
     status: 'success'
+  })
+})
+
+// 29
+app.get('/api/allAndSpreadA', (req, res) => {
+  res.json({
+    status: 'success',
+    data: 'allAndSpreadA'
+  })
+})
+
+app.get('/api/allAndSpreadB', (req, res) => {
+  res.json({
+    status: 'success',
+    data: 'allAndSpreadB',
+    message: 'special message'
   })
 })
 

@@ -1,5 +1,11 @@
+import qs from 'qs'
 import axios from './axios'
-import type { Canceler } from './axios/types'
+import type {
+  Canceler,
+  AxiosRequestConfig,
+  AxiosPromise,
+  AxiosResponse,
+} from './axios/types'
 function getElById(id: string): HTMLElement {
   return document.getElementById(id)!
 }
@@ -689,7 +695,7 @@ getElById('defendXSRF').addEventListener('click', () => {
     .catch((err) => console.error(err))
 })
 
-// 22. 上传下载
+// 22. 文件下载及进度监控
 const downloadInstance = axios.create({
   onDownloadProgress: (e) => {
     const load = e.loaded
@@ -705,6 +711,7 @@ getElById('download').addEventListener('click', () => {
     .catch((err) => console.error(err))
 })
 
+// 23. 文件上传及进度监控
 const uploadInstance = axios.create({
   onUploadProgress: (e) => {
     const load = e.loaded
@@ -726,4 +733,161 @@ getElById('upload').addEventListener('click', () => {
   } else {
     window.alert('请先点击"选择文件"选择您想上传的本地文件')
   }
+})
+
+// 24. 添加HTTP授权auth属性
+getElById('HTTPAuthorization').addEventListener('click', () => {
+  axios
+    .get('http://127.0.0.1:3000/api/HTTPAuthorization', {
+      auth: {
+        username: 'NLRX',
+        password: '123456',
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 25. 添加validateStatus属性
+getElById('checkStatus').addEventListener('click', () => {
+  // a) 默认允许status: 200 ~ 300
+  axios
+    .get('/api/checkStatus')
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // b) 配置允许 200 ~ 399
+  axios
+    .get('/api/checkStatus', {
+      validateStatus: (status) => {
+        return status >= 200 && status < 400
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // c) 不进行状态码校验
+  axios
+    .get('/api/checkStatus', {
+      validateStatus: null,
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 26. 自定义序列化参数请求
+getElById('addParamsSerializer').addEventListener('click', () => {
+  // a) 正常请求无参数
+  axios
+    .get('/api/addParamsSerializer')
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // b) 自定义序列化参数
+  axios
+    .get('/api/addParamsSerializer', {
+      params: {
+        a: 1,
+        b: 2,
+        c: ['a', 'b', 'c'],
+      },
+      paramsSerializer: (params) => {
+        return qs.stringify(params, { arrayFormat: 'brackets' })
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // c) params是URLSearcchParams对象实例
+  axios
+    .get('/api/addParamsSerializer', {
+      params: new URLSearchParams('a=1&b=2'),
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // d) 默认处理
+  axios
+    .get('/api/addParamsSerializer', {
+      params: {
+        a: 1,
+        b: 2,
+        c: ['a', 'b', 'c'],
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 27. 添加baseURL
+getElById('baseURL').addEventListener('click', () => {
+  const baseURLInstance = axios.create({
+    baseURL: 'http://127.0.0.1:3000/',
+  })
+
+  // a) 拼接
+  baseURLInstance
+    .get('/api/baseURL')
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+
+  // b) 不拼接
+  baseURLInstance
+    .get('http://127.0.0.1:3000/api/baseURL')
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err))
+})
+
+// 28. getUri
+getElById('getUri').addEventListener('click', () => {
+  const config: AxiosRequestConfig = {
+    baseURL: 'http://127.0.0.1:3000',
+    url: '/api/NLRX',
+    params: {
+      a: 1,
+      b: 2,
+      c: ['a', 'b', 'c'],
+    },
+  }
+
+  console.log(axios.getUri(config))
+})
+
+// 29. 添加axios.all和axios.spread方法
+getElById('allAndSpread').addEventListener('click', () => {
+  interface resultA {
+    status: string
+    data: string
+  }
+
+  interface resultB {
+    status: string
+    data: number
+    message: string
+  }
+
+  const requestA = axios.get<resultA>('/api/allAndSpreadA')
+  const requestB = axios.get<resultB>('/api/allAndSpreadB')
+
+  // 1) 只调用axios.all
+  axios
+    .all([requestA, requestB])
+    .then(([resA, resB]) => {
+      console.log(resA.data.status, resA.data.data)
+      console.log(resB.data.status, resB.data.data, resB.data.message)
+    })
+
+  // 2) 调用axios.all以及axios.spread
+  axios
+    .all([requestA, requestB])
+    .then(axios.spread((resA, resB) => {
+      console.log(resA.data.status, resA.data.data)
+      console.log(resB.data.status, resB.data.data, (resB as AxiosResponse<resultB>).data.message)
+    }))
+
+  // 3) 调用Promise.all (推荐)
+  Promise.all<[AxiosPromise<resultA>, AxiosPromise<resultB>]>([requestA, requestB]).then(([resA, resB]) => {
+    console.log(resA.data.status, resA.data.data)
+    console.log(resB.data.status, resB.data.data, resB.data.message)
+  })
 })

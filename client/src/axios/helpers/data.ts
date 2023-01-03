@@ -31,14 +31,21 @@ export function transformResponse(data: any, headers?: any): any {
   if (data && data instanceof Blob) {
     let filename = 'file'
     if (headers['content-disposition']) {
-      filename = headers['content-disposition'].match(/filename=.*/)[0].replace('filename=','').replace(/\"/g,'')
+      // 如果是中文文件名
+      if (/UTF-8/.test(headers['content-disposition'])) {
+        const encodeNameExt = headers['content-disposition'].match(/filename\*=.*/)[0].replace("filename*=UTF-8''", "")
+        filename = decodeURIComponent(encodeNameExt)
+      } else {
+        
+        filename = headers['content-disposition'].match(/filename=.*/)[0].replace('filename=','').replace(/\"/g,'')
+      }
     }
-    
     const url = window.URL.createObjectURL(data)
     const a = document.createElement('a')
     a.href = url
     a.download = filename
     a.click()
+    window.URL.revokeObjectURL(url)
   }
   return data 
 }

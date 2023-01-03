@@ -1,6 +1,6 @@
 # mini-axios-ts
 ## Before reading
-
+**已完结**
 **此轮子是根据[ts-axios](https://github.com/NLRX-WJC/ts-axios)系列文章的复现以及进一步优化。最大的特点是用更详细以及更容易理解的方式去实现部分功能模块包括`interceptor`|`tranformRequest`|`tranformResponse`|`CancelToken`等，以及新功能`支持文件的上传与下载`等**
 
 **目录：**
@@ -17,7 +17,7 @@
       +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
       +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
       +  根据`原系列文章`[ts-axios](https://github.com/NLRX-WJC/ts-axios)以及此仓库[mini-axios-ts#Debug](https://github.com/laerpeeK/mini-axios-ts#debug)记录进行对应代码书写。
-      +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12 切换到`Performance`查看效果。
+      +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12 切换到`Network`查看效果。
    
    
 
@@ -26,8 +26,8 @@
       +  切换到此仓库的`main`分支进行本地`git clone --branch main 对应方式地址`。得到基础项目
       +  cd server -> npm run server 得到运行在 `http://127.0.0.1:3000` 的API服务端
       +  cd client -> npm run client 得到运行在 `http://127.0.0.1:8080` 的客户端测试网页
-      +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12打开开发者工具切换到`Performance`查看效果。
-      +  通过点击页面上对应按钮触发网络请求，再通过F12打开开发者工具切换到`Performance`查看效果
+      +  打开浏览器，输入 `http://127.0.0.1:8080` -> F12打开开发者工具切换到`Network`查看效果。
+      +  通过点击页面上对应按钮触发网络请求，再通过F12打开开发者工具切换到`Network`查看效果
    
    
 
@@ -61,9 +61,13 @@
 + 客户端防止XSRF
 + 支持上传下载进度监控
 + 支持上传下载功能
++ 支持配置`HTTPAuthorization`
++ 支持配置状态码校验函数`validateStatus`, 优化了该项类型定义，允许用户配置时传入null取消状态码校验
++ 支持自定义序列化请求参数函数`paramsSerializer`
++ 支持`baseURL`的添加
++ 支持`getUri`方法
++ 支持`all`以及`spread`方法 (类型声明上仍然不够严谨)
 
-**进行中**
-+ JSON数据的自动转换
 
 ## Debug
 1. 处理get请求url参数: params[key]对应值为undefined时，不直接删除，而是保留key=''
@@ -94,12 +98,19 @@
 18. 请求和响应数据配置化：优化了`ransformRequest`以及`transformResponse`在默认配置和用户配置的合并，在实际测试调用时不需要采用[userTransformRequst, ...axios.defaults.transformRequest]这种重复引入的方式，会自行合并。具体查看`core/mergeConfig.ts`的代码实现
 19. axios.CancelToken原理解析，具体查看[mini-axios-ts#CancelToken](https://github.com/laerpeeK/mini-axios-ts#canceltoken)
 20. `CancelToken.ts`的`resolePromise`接口进行了简化，`type/index.ts`的`Canceler`同样进行了简化，调用`cancel(message)`取消网络请求时一定要传入对应的message
-21. 封装`CancelToken.source`的好处在于实际调用该方法时，就已经返回了对应的`token`以及`cancel`。可以在`axios.get`之余方法调用后直接调用`cancel(message)`。 否则在`ts编译检测阶段`，如果在config.cancelToken再去new CancelToken传入一个executor去给cancel赋值，会出现`在给cancel赋值前使用了cancel`的报错，这种时候需要异步执行cancel。详见测试用例`16：通过方式二主动取消网络请求`
+21. 封装`CancelToken.source`的好处在于实际调用该方法时，就已经返回了对应的`token`以及`cancel`。可以在`axios.get`之余方法调用后直接调用`cancel(message)`。 否则在`ts静态检测阶段`，如果在config.cancelToken再去new CancelToken传入一个executor去给cancel赋值，会出现`在给cancel赋值前使用了cancel`的报错，这种时候需要异步执行cancel。详见测试用例`16：通过方式二主动取消网络请求`
 22. 防止XSRF攻击：优化了`helpers/isURLSameOrigin.ts`, 采用更严谨的方式来处理`protocol`, `host`, `port`
 23. 防止XSRF攻击：优化了server端`app.js`的`cors`, `app.options`的处理方式。
 24. 文件上传下载进度监控：添加了实际上传下载功能的实现，具体查看对应代码
 25. 文件下载功能实现：查看`client/axios/helpers/data.ts/transformResponse`函数实现以及对应的测试用例，`server/app.js`对应的`22`接口
 26. 文件上传功能实现：通过`multer`实现
+27. 添加HTTP授权auth属性：具体好处可参考此文章[Http auth认证的两种方式Basic方式和 Digest认证](https://blog.csdn.net/Virgil_K2017/article/details/92573833), 这里补充一下：
+    +  *digest*认证在服务端是通过客户端发送过来的`username`在服务端查找其对应的`password`,解决了密码明文传输的问题。
+    +  这两种认证方式都是在没有办法使用`HTTPS`认证下的备选，都存在安全问题。
+28. 自定义序列化请求参数：这章在`client`文件夹安装`qs`时，需要安装对应的`*.d.ts`支持, 因此应该在`client`文件夹下执行`npm install @types/qs --save -dev`
+29. axios.all和axios.spread：目前`axios`官方已弃用这两个方法，axios.all类型约束可参考`Promise.all`,因此这个库就不实现了，而是以`Promise.all`的类型取代`axios.all`。删除了`axios.spread`功能。原文章实现的axios.all以及axios.spread可以理解为语法糖做法，且在响应数据泛型设置上是存在`无法同时约束多个返回值`的问题。
+30. `axios.all`的类型定义难度在于`all`方法入参泛型T为`[AxiosPromise<resultA>, AxiosPromise<resultB>]`, 但返回值却要是`Promise<[AxiosResponse<resultA>, AxiosResponse<resultB>]>`。 如果你的`TypeScript`理解够深，不妨实现一下上述描述然后提个`pull request`,感谢！
+31. 对于`axios.spread`, 的类型定义，泛型`T`应该为`数组类型`, 对应`[AxiosResponse<resultA>, AxiosResponse<resultB>]`。 同上，如果可以实现对应的类型注解，同样欢迎`pull request`。
 
 ## CancelToken
 
