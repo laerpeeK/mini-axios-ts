@@ -1,19 +1,21 @@
-const dotenv = require('dotenv')
-const app = require('./app')
-process.on('unhandledRejection', (err) => {
+import dotenv from 'dotenv'
+import type { Application } from 'express'
+const app: Application = require('./app')
+
+process.on('unhandledRejection', (err: Error) => {
   console.log('unhadledRejection: ')
   console.log(err.name, err.message)
   process.exit(1)
 })
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', (err: Error) => {
   console.log('uncaughtException: ')
   console.log(err.name, err.message)
   process.exit(1)
 })
 
 dotenv.config({
-  path: './config.server.env',
+  path: './config.local.env',
 })
 
 const { PROTOCOL, HOST, PORT } = process.env

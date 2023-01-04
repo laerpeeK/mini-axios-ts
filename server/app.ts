@@ -1,8 +1,9 @@
-const express = require('express')
-const morgan = require('morgan')
-const bodyParser = require('body-parser')
-const AppError = require('./utils/appError')
-const globalErrorHandler = require('./controller/errorController')
+import express from 'express'
+import morgan from 'morgan'
+import bodyParser from 'body-parser'
+import AppError from './utils/appError'
+import globalErrorHandler from './controller/errorController'
+
 
 const app = express()
 
