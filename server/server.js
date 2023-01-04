@@ -13,7 +13,7 @@ process.on('uncaughtException', (err) => {
 })
 
 dotenv.config({
-  path: './config.server.env',
+  path: './config.local.env',
 })
 
 const { PROTOCOL, HOST, PORT } = process.env
