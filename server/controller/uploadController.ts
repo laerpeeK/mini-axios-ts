@@ -1,6 +1,6 @@
 // 文件上传功能处理函数
-const multer = require('multer')
-const path = require('path')
+import multer from 'multer'
+import path from 'path'
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.resolve(process.cwd(), './public/upload'))
@@ -13,9 +13,10 @@ const storage = multer.diskStorage({
     cb(null, file.originalname)
   },
 })
-const upload = multer({ storage })
 
 /**
- * 文件上传模块
+ * 文件上传
  */
-module.exports = upload
+const uploadHandler = multer({ storage })
+
+export default uploadHandler

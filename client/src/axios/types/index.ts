@@ -107,7 +107,8 @@ export interface AxiosStatic extends AxiosInstance {
   CancelToken: CancelTokenStatic
   Cancel: CancelStatic
   isCancel: (val: any) => boolean
-  all: typeof Promise.all
+  all: typeof Promise.all // 这是Promise的定义
+  // all<T>(values: Array<T | Promise<T>>): Promise<T[]>  这是axios官方的定义
   spread<T, R>(callback: (...args: T[]) => R): (values: T[]) => R
 
 }

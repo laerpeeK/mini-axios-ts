@@ -1,25 +1,21 @@
-const path = require('path')
-const fs = require('fs')
-const express = require('express')
-const morgan = require('morgan')
-const atob = require('atob')
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
-const AppError = require('./utils/appError')
-const globalErrorHandler = require('./controller/errorController')
-const corsHandler = require('./controller/corsController')
-const uploadHandler = require('./controller/uploadController')
-const authHandler = require('./controller/authController')
-const app = express()
+import path from 'path'
+import fs from 'fs'
+import express from 'express'
+import morgan from 'morgan'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import AppError from './utils/appError'
+import globalErrorHandler from './controller/errorController'
+import corsHandler from './controller/corsController'
+import authHandler from './controller/authController'
+import uploadHandler from './controller/uploadController'
 
-// 中间件
-app.use(morgan('common'))
+const app = express()
+app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
 
-// 预处理
 try {
   fs.readdirSync(path.resolve(process.cwd(), 'public/upload'))
 } catch (e) {
@@ -178,7 +174,6 @@ app.options(/^\/api\/*/, (req, res) => {
 app.post('/api/addWithCredentials', (req, res) => {
   res.json(req.cookies)
 })
-
 // 21
 app.get('/api/defendXSRF', (req, res) => {
   res.cookie('XSRF-NLRX', 'NLRX')
@@ -232,12 +227,10 @@ app.get('/api/allAndSpreadB', (req, res) => {
     message: 'special message',
   })
 })
-
 // no match address
 app.all('*', (req, res, next) => {
   next(new AppError(`找不到路径：${req.originalUrl}`, 404))
 })
 
 app.use(globalErrorHandler)
-
 module.exports = app

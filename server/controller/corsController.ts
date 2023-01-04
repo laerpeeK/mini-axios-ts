@@ -1,5 +1,7 @@
+import type { Request, Response, NextFunction } from 'express'
+import type { CorsConfig } from '../types'
 // 跨域配置
-const cors = {
+const cors: CorsConfig = {
   'Access-Control-Allow-Origin': 'http://127.0.0.1:8080',
   'Access-Control-Allow-Credentials': true,
   'Access-Control-Allow-Methods': '*',
@@ -8,12 +10,11 @@ const cors = {
 }
 
 /**
- * 跨域处理模块
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
+ * 跨域设置
  */
-module.exports = (req, res, next) => {
+const corsHandler = (req: Request, res: Response, next: NextFunction) => {
   res.set(cors)
   next()
 }
+
+export default corsHandler
